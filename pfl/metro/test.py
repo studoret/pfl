@@ -70,7 +70,7 @@ if __name__ == "__main__" and __package__ is None:
     
 
   app = wx.PySimpleApp()
-  frame = MyFrame(None, 'LoopStation')
+  frame = MyFrame(None, 'Python Foot Looper: test metronome')
   app.MainLoop()
   m.StartPlayback()
 
