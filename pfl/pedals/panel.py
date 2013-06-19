@@ -24,59 +24,65 @@ along with pfl.  If not, see <http://www.gnu.org/licenses/>.
 
 import wx
 
-pedals = { 80: 0, # 'p'
-           79: 1, # 'o'
-           65: 2, # 'a'
-           73: 3 } # 'i' 
+pedalsMap = { 80: 0, # 'p'
+              79: 1, # 'o'
+              65: 2, # 'a'
+              73: 3 } # 'i' 
 
-class MyButton(wx.Button):
+class Pedal(wx.Panel):
   def __init__(self, parent, id, label):
-    wx.Button.__init__(self, parent, id, label)
-    self.defaultColor = self.GetBackgroundColour()
-    self.keyDownCount = 0
+    wx.Panel.__init__(self, parent, id, style = wx.BORDER_SUNKEN)
+    self.__box = wx.BoxSizer(wx.HORIZONTAL)
+    self.SetBackgroundColour("black")
+    self.__defaultColor = self.GetBackgroundColour()
+    self.SetForegroundColour("yellow")
+    self.__keyDownCount = 0
+    self.__text = wx.StaticText(self, label=label)
+    self.__text.SetFont(wx.Font(16, wx.DECORATIVE, wx.ITALIC, wx.NORMAL))
+    self.__box.Add(self.__text, 0, wx.ALL | wx.ALIGN_TOP, 2)
+    self.SetSizer(self.__box)
 
   def Light(self, color):
     wx.CallAfter(self.SetBackgroundColour, color)
 
   def Unlight(self):
-    wx.CallAfter(self.SetBackgroundColour,self.defaultColor)
+    wx.CallAfter(self.SetBackgroundColour,self.__defaultColor)
   
   def AddManager(self, manager):
     self.manager = manager
 
   def OnKeyDown(self):
-    if self.keyDownCount == 0:
-      action = self.manager.GetDownAction(self.GetId(), self.keyDownCount)
+    if self.__keyDownCount == 0:
+      action = self.manager.GetDownAction(self.GetId(), self.__keyDownCount)
       if action != None:
         action.Do()
       self.Light(wx.GREEN)
-    elif self.keyDownCount == 2:
-      action = self.manager.GetDownAction(self.GetId(), self.keyDownCount)
+    elif self.__keyDownCount == 2:
+      action = self.manager.GetDownAction(self.GetId(), self.__keyDownCount)
       if action != None:
         action.Do()
       self.Light(wx.BLUE)
-    self.keyDownCount += 1
+    self.__keyDownCount += 1
 
   def OnKeyUp(self):
-    action = self.manager.GetUpAction(self.GetId(), self.keyDownCount)
+    action = self.manager.GetUpAction(self.GetId(), self.__keyDownCount)
     if action != None:
       action.Do()
-    self.keyDownCount = 0
+    self.__keyDownCount = 0
     self.Unlight()
 
-class ControlPanel(wx.Panel):
+class PedalsPanel(wx.Panel):
   def __init__(self, parent):
     wx.Panel.__init__(self, parent)
-    self.SetBackgroundColour('#0000FF')
     self.SetFocusIgnoringChildren() 
     self.staticBox = wx.StaticBox(self, label='Pedals')
     self.box    = wx.StaticBoxSizer(self.staticBox,wx.HORIZONTAL)
-    self.buttons = [ MyButton(self, 0, "Pedal 1"),
-                     MyButton(self, 1, "Pedal 2"),
-                     MyButton(self, 2, "Pedal 3"),
-                     MyButton(self, 3, "Pedal 4") ]
-    for button in self.buttons:
-      self.box.Add(button, flag=wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL )
+    self.__pedals = [ Pedal(self, 0, "Pedal 1"),
+                     Pedal(self, 1, "Pedal 2"),
+                     Pedal(self, 2, "Pedal 3"),
+                     Pedal(self, 3, "Pedal 4") ]
+    for pedal in self.__pedals:
+      self.box.Add(pedal, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL,5 )
     self.SetSizer(self.box)
     self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
     self.Bind(wx.EVT_KEY_UP, self.KeyUp)
@@ -85,16 +91,16 @@ class ControlPanel(wx.Panel):
     return self.box
 
   def AddManager(self, manager):
-    for button in self.buttons:
-      button.AddManager(manager)
+    for pedal in self.__pedals:
+      pedal.AddManager(manager)
     
   def KeyUp(self, evt):
     key = evt.GetKeyCode()
-    self.buttons[pedals[key]].OnKeyUp()
+    self.__pedals[pedalsMap[key]].OnKeyUp()
 
   def KeyDown(self, evt):
     key = evt.GetKeyCode()
-    self.buttons[pedals[key]].OnKeyDown()
+    self.__pedals[pedalsMap[key]].OnKeyDown()
 
 
         

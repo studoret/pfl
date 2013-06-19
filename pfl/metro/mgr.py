@@ -1,11 +1,29 @@
-# module loopstation metronome
-# author: S.Tudoret
-# date: 06/06/2013
-#
+"""
+module pfl.metro.mgr
+Manager of pfl.metro.metro object .
 
-import pyo
+"""
 
-from ls_metro import *
+"""
+Copyright 2013 Stephane Tudoret
+
+This file is part of pfl, a python foot looper application.
+
+pfl is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+pfl is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with pfl.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+from metro import *
 
 # Pedal 1, reserved
 # Pedal 2, DownAction => nothing
@@ -25,26 +43,23 @@ class MetroManager():
 #                      ["Mul", self.SelectMul], 
 #                      ["Beat", self.SelectBeat]]
 #    self.__actionIdx = 0
-    self.count = 0 
     self.metro = metro
     self.metro.AddMonitor(self)
     controlPanel.AddManager(self)
     self.metroPanel = metroPanel
-    self.metroPanel.RefreshTempo(str(metro.GetTempo()))
-    self.metroPanel.RefreshMul(str(metro.GetMul()))
-    self.metroPanel.RefreshBeat(str(metro.GetBeat()))
+    self.Refresh()
     
-  def GetDownAction(self, buttonId, keyDownCount):
-    if buttonId == 0:
+  def GetDownAction(self, pedalId, keyDownCount):
+    if pedalId == 0:
       self.metro.TempoDown() 
-    if buttonId == 1:
+    if pedalId == 1:
       self.metro.TempoUp() 
-    if buttonId == 2:
+    if pedalId == 2:
       self.metro.StartPlayback() 
-    if buttonId == 3:
+    if pedalId == 3:
       self.metro.StopPlayback() 
 
-  def GetUpAction(self, buttonId, keyDownCount):
+  def GetUpAction(self, pedalId, keyDownCount):
     pass
  
   def Refresh(self):
@@ -53,14 +68,11 @@ class MetroManager():
     self.metroPanel.RefreshBeat(str(self.metro.GetBeat()))
 
   def Tick(self):
-    self.count += 1 
-    beat = self.metro.GetBeat()
-    if self.count > beat:
-      self.count = 1
-    if self.count == beat:
+    tick = self.metro.GetTick()
+    if tick == 1:
       color = "green"
     else:
       color = "blue"
-    self.metroPanel.RefreshBeat(str(self.count), color)
+    self.metroPanel.RefreshTick(str(tick), color)
       
                    
