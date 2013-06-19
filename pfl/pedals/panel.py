@@ -30,17 +30,26 @@ pedalsMap = { 80: 0, # 'p'
               73: 3 } # 'i' 
 
 class Pedal(wx.Panel):
-  def __init__(self, parent, id, label):
+  def __init__(self, parent, id, title, subtitle=""):
     wx.Panel.__init__(self, parent, id, style = wx.BORDER_SUNKEN)
     self.__box = wx.BoxSizer(wx.HORIZONTAL)
     self.SetBackgroundColour("black")
     self.__defaultColor = self.GetBackgroundColour()
     self.SetForegroundColour("yellow")
     self.__keyDownCount = 0
-    self.__text = wx.StaticText(self, label=label)
-    self.__text.SetFont(wx.Font(16, wx.DECORATIVE, wx.ITALIC, wx.NORMAL))
-    self.__box.Add(self.__text, 0, wx.ALL | wx.ALIGN_TOP, 2)
+    self.__title = wx.StaticText(self, label=title)
+    self.__title.SetFont(wx.Font(16, wx.DECORATIVE, wx.ITALIC, wx.NORMAL))
+    self.__box.Add(self.__title, 0, wx.ALL | wx.ALIGN_TOP, 2)
+    self.__subtitle = wx.StaticText(self, label=subtitle)
+    self.__subtitle.SetFont(wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
+    self.__box.Add(self.__subtitle, 0, wx.ALL | wx.ALIGN_BOTTOM, 2)
     self.SetSizer(self.__box)
+
+  def SetTitle(self, title):
+     wx.CallAfter(self.__title.SetLabel,title)
+
+  def SetSubtitle(self, subtitle):
+     wx.CallAfter(self.__subtitle.SetLabel,subtitle)
 
   def Light(self, color):
     wx.CallAfter(self.SetBackgroundColour, color)
@@ -53,19 +62,15 @@ class Pedal(wx.Panel):
 
   def OnKeyDown(self):
     if self.__keyDownCount == 0:
-      action = self.manager.GetDownAction(self.GetId(), self.__keyDownCount)
-      if action != None:
-        action.Do()
+      self.manager.PedalDown(self.GetId(), self.__keyDownCount)
       self.Light(wx.GREEN)
     elif self.__keyDownCount == 2:
-      action = self.manager.GetDownAction(self.GetId(), self.__keyDownCount)
-      if action != None:
-        action.Do()
+      self.manager.PedalDown(self.GetId(), self.__keyDownCount)
       self.Light(wx.BLUE)
     self.__keyDownCount += 1
 
   def OnKeyUp(self):
-    action = self.manager.GetUpAction(self.GetId(), self.__keyDownCount)
+    action = self.manager.PedalUp(self.GetId(), self.__keyDownCount)
     if action != None:
       action.Do()
     self.__keyDownCount = 0
@@ -77,10 +82,10 @@ class PedalsPanel(wx.Panel):
     self.SetFocusIgnoringChildren() 
     self.staticBox = wx.StaticBox(self, label='Pedals')
     self.box    = wx.StaticBoxSizer(self.staticBox,wx.HORIZONTAL)
-    self.__pedals = [ Pedal(self, 0, "Pedal 1"),
-                     Pedal(self, 1, "Pedal 2"),
-                     Pedal(self, 2, "Pedal 3"),
-                     Pedal(self, 3, "Pedal 4") ]
+    self.__pedals = [ Pedal(self, 0, "Pedal 0",""),
+                     Pedal(self, 1, "Pedal 1",""),
+                     Pedal(self, 2, "Pedal 2",""),
+                     Pedal(self, 3, "Pedal 3","") ]
     for pedal in self.__pedals:
       self.box.Add(pedal, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL,5 )
     self.SetSizer(self.box)
@@ -102,5 +107,10 @@ class PedalsPanel(wx.Panel):
     key = evt.GetKeyCode()
     self.__pedals[pedalsMap[key]].OnKeyDown()
 
+  def SetTitle(self, pedalIdx, title):
+    self.__pedals[pedalIdx].SetTitle(title)
+
+  def SetSubtitle(self, pedalIdx, subtitle):
+    self.__pedals[pedalIdx].SetSubtitle(subtitle)
 
         

@@ -63,6 +63,7 @@ if __name__ == "__main__" and __package__ is None:
       self.SetSizer(self.fSizer)
       
       self.manager = MetroManager(self.pedalsPanel, m, self.metroPanel)
+      self.manager.Select()
       self.Centre()
       self.Show()
       self.fSizer.Layout()
