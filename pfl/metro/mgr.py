@@ -25,17 +25,11 @@ along with pfl.  If not, see <http://www.gnu.org/licenses/>.
 
 from metro import *
 
-# Pedal 0, reserved
-# Pedal 1, DownAction => nothing
-#          UpAction + keyDownCount < 2   => incremente or decremente the position in action table
-#          UpAction + keyDownCount >= 2  => change incremente to decremente mode in vice et versa
 
 # Pedal 2, DownAction => nothing
 #          UpAction + keyDownCount < 2   => do action 
 #          UpAction + keyDownCount >=   => change incremente to decremente mode in vice et versa
 
-# Pedal 3, DownAction => play or stop
-#          UpAction  => nothing
 
 class Action():
   def __init__(self, title, subtitle=""):
@@ -48,9 +42,24 @@ class Action():
   def GetSubtitle(self):
     return self.__subtitle
 
+class ActionMute(Action):
+  titles = {0: "MUTE    ", 1: "UNMUTE  "}
+  def __init__(self, muteFunction, unmuteFunction):
+    self.__state = 1
+    Action.__init__(self, self.__class__.titles[self.__state])
+    self.actions = {0: unmuteFunction, 1: muteFunction}
+    
+  def Select(self):
+    self.__state += 1
+    self.__state %= 2
+    self.actions[self.__state]()
+
+  def GetTitle(self):
+    return self.__class__.titles[self.__state]       
+
 class ActionMenu(Action):
-  def __init__(self, title):
-    Action.__init__(self, title, u'  \u21E9')
+  def __init__(self):
+    Action.__init__(self, "MENU    ", u'  \u21E9')
     self.__actions = []
     self.__idx = 0
     self.__increment = 1
@@ -91,12 +100,12 @@ class ActionMenu(Action):
 
 class MetroManager():
   def __init__(self, controlPanel, metro, metroPanel):
-    self.__menu =  ActionMenu("MENU")
-    self.__menu.Add(Action("TEMPO"))
-    self.__menu.Add(Action("BEAT"))
-    self.__menu.Add(Action("VOL"))
-
+    self.__menu =  ActionMenu()
+    self.__menu.Add(Action("TEMPO   "))
+    self.__menu.Add(Action("BEAT    "))
+    self.__menu.Add(Action("VOL     "))
     self.__metro = metro
+    self.__mute = ActionMute(self.__metro.StopPlayback, self.__metro.StartPlayback)
     self.__metro.AddMonitor(self)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
@@ -107,7 +116,9 @@ class MetroManager():
     self.__cp.SetTitle(1, self.__menu.GetTitle())  
     self.__cp.SetSubtitle(1, self.__menu.GetSubtitle())  
     self.__cp.SetTitle(2, self.__menu.GetActionTitle()) 
-    self.__cp.SetSubtitle(2, self.__menu.GetActionSubtitle())    
+    self.__cp.SetSubtitle(2, self.__menu.GetActionSubtitle()) 
+    self.__cp.SetTitle(3, self.__mute.GetTitle()) 
+    self.__cp.SetSubtitle(3, self.__mute.GetSubtitle())      
 
   def GetCurrentAction(self):
     return self.__actions[self.__actionIdx]
@@ -120,6 +131,9 @@ class MetroManager():
         self.__menu.Reverse()
         self.__cp.SetSubtitle(pedalId, self.__menu.GetSubtitle())
       return
+    if pedalId == 3:
+      self.__mute.Select()
+      self.__cp.SetTitle(pedalId, self.__mute.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
     if pedalId == 0:
@@ -130,11 +144,6 @@ class MetroManager():
       self.__cp.SetTitle(pedalId + 1, str(self.__menu.GetActionTitle()))
       self.__cp.SetSubtitle(pedalId + 1, str(self.__menu.GetActionSubtitle()))
       return
-    if pedalId == 2:
-      if keyDownCount < 2:
-        self.__metro.StartPlayback() 
-    if pedalId == 3:
-      self.__metro.StopPlayback() 
  
   def Refresh(self):
     self.__metroPanel.RefreshTempo(str(self.__metro.GetTempo()))
