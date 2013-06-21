@@ -49,7 +49,7 @@ class LedPanel(wx.Panel):
     if subTitle != None:
       self.subTitle = wx.StaticText(self, label=subTitle)
       self.subTitle.SetFont(wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
-      self.box.Add(self.subTitle, 0, wx.ALL | wx.ALIGN_BOTTOM, 2)
+      self.box.Add(self.subTitle, 0, wx.ALL | wx.ALIGN_BOTTOM | wx.FIXED_MINSIZE, 2)
     self.SetSizer(self.box)
 
   def SetSubTitle(self, subTitle):
@@ -63,15 +63,15 @@ class LedPanel(wx.Panel):
     
 class TempoPanel(LedPanel):
   def __init__(self, parent):
-    LedPanel.__init__(self, parent, 3, "blue", 'TEMPO', 'bpm')
+    LedPanel.__init__(self, parent, 3, "blue", 'TEMPO', ' bpm')
 
 class BeatPanel(LedPanel):
   def __init__(self, parent):
-    LedPanel.__init__(self, parent, 2, "blue", 'BEAT','0')
+    LedPanel.__init__(self, parent, 3, "blue", 'BEAT','00 ')
 
 class VolumePanel(LedPanel):
   def __init__(self, parent):
-    LedPanel.__init__(self, parent, 2, "blue", 'VOL.')
+    LedPanel.__init__(self, parent, 4, "blue", 'VOL.')
 
 class MetroPanel(wx.Panel):
   def __init__(self, parent):

@@ -80,7 +80,7 @@ class Metro():
   def MulDown(self):
     if self.__mul > 0:
       self.__mul -= 0.1
-      self.__metro.setMul(seld.__mul)
+      self.__metro.setMul(self.__mul)
       self.RefreshMonitors()
 
   def BeatUp(self):
@@ -90,7 +90,7 @@ class Metro():
 
   def BeatDown(self):
     if self.__beat > 2:
-      self.__mul -= 1
+      self.__beat -= 1
       self.RefreshMonitors()
 
   def GetTempo(self):

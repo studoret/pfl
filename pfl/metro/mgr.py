@@ -55,15 +55,33 @@ class ActionMute(Action):
     self.actions[self.__state]()
 
   def GetTitle(self):
-    return self.__class__.titles[self.__state]       
+    return self.__class__.titles[self.__state] 
+
+class ActionCursor(Action):
+  subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
+  
+  def __init__(self, title, incFunction, decFunction):
+    self.__increment = 1
+    Action.__init__(self, title, self.__class__.subtitles[self.__increment])
+    self.actions = {-1: incFunction, 1: decFunction}
+
+  def Select(self):
+    self.actions[self.__increment]()
+
+  def Reverse(self):
+    self.__increment *= -1
+
+  def GetSubtitle(self):
+    return self.__class__.subtitles[self.__increment]
 
 class ActionMenu(Action):
+  subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
+
   def __init__(self):
-    Action.__init__(self, "MENU    ", u'  \u21E9')
+    self.__increment = 1
+    Action.__init__(self, "MENU    ", self.__class__.subtitles[self.__increment])
     self.__actions = []
     self.__idx = 0
-    self.__increment = 1
-    self.__subtitles = {-1:u'  \u21E7', 1:u'  \u21E9'}
   
   def Add(self, action):
     self.__actions.append(action)
@@ -95,16 +113,16 @@ class ActionMenu(Action):
     self.__increment *= -1
 
   def GetSubtitle(self):
-    return self.__subtitles[self.__increment]
+    return self.__class__.subtitles[self.__increment]
     
 
 class MetroManager():
   def __init__(self, controlPanel, metro, metroPanel):
-    self.__menu =  ActionMenu()
-    self.__menu.Add(Action("TEMPO   "))
-    self.__menu.Add(Action("BEAT    "))
-    self.__menu.Add(Action("VOL     "))
     self.__metro = metro
+    self.__menu =  ActionMenu()
+    self.__menu.Add(ActionCursor("Tempo   ",self.__metro.TempoUp, self.__metro.TempoDown))
+    self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
+    self.__menu.Add(ActionCursor("VOL     ",self.__metro.MulUp, self.__metro.MulDown))
     self.__mute = ActionMute(self.__metro.StopPlayback, self.__metro.StartPlayback)
     self.__metro.AddMonitor(self)
     self.__cp = controlPanel
@@ -131,6 +149,13 @@ class MetroManager():
         self.__menu.Reverse()
         self.__cp.SetSubtitle(pedalId, self.__menu.GetSubtitle())
       return
+    if pedalId == 2:
+      action = self.__menu.GetCurrentAction()
+      if action != None:
+        if keyDownCount >= 2:
+          action.Reverse()
+          self.__cp.SetSubtitle(pedalId, action.GetSubtitle())
+      return
     if pedalId == 3:
       self.__mute.Select()
       self.__cp.SetTitle(pedalId, self.__mute.GetTitle())
@@ -141,14 +166,26 @@ class MetroManager():
     if pedalId == 1:
       if keyDownCount < 2:
         self.__menu.Select()
-      self.__cp.SetTitle(pedalId + 1, str(self.__menu.GetActionTitle()))
-      self.__cp.SetSubtitle(pedalId + 1, str(self.__menu.GetActionSubtitle()))
+        self.__cp.SetTitle(pedalId + 1, self.__menu.GetActionTitle())
+        self.__cp.SetSubtitle(pedalId + 1, self.__menu.GetActionSubtitle())
+      return
+    if pedalId == 2:
+      action = self.__menu.GetCurrentAction()
+      if action != None:
+        if keyDownCount < 2:
+          action.Select()
+          self.__cp.SetSubtitle(pedalId,action.GetSubtitle())
       return
  
   def Refresh(self):
     self.__metroPanel.RefreshTempo(str(self.__metro.GetTempo()))
     self.__metroPanel.RefreshMul(str(self.__metro.GetMul()))
-    self.__metroPanel.RefreshBeat(str(self.__metro.GetBeat()))
+    beat = self.__metro.GetBeat()
+    if beat < 10:
+      beatStr = " "+str(beat)
+    else:
+      beatStr = str(beat)
+    self.__metroPanel.RefreshBeat(beatStr)
 
   def Tick(self):
     tick = self.__metro.GetTick()
