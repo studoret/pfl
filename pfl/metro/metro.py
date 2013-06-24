@@ -40,7 +40,7 @@ class Metro():
     self.__beat = 4
     self.__tick = 0 
     self.__currentBeat = 0
-    self.__mul = 0.5
+    self.__mul = 50 # percent
     self.__freq = 700
     self.__dur = 0.01
     time = 60. / self.__tempoTab[self.__tempoIdx]
@@ -48,13 +48,15 @@ class Metro():
     self.__wave = pyo.SquareTable(size=10)
     self.__amp = pyo.TrigEnv(self.__metro, table=self.__wave, dur=self.__dur)
     self.__trig = pyo.TrigFunc(self.__metro, function=self.Tick)
-    self.__output = pyo.Osc(table=self.__wave, freq=self.__freq,  mul=self.__amp * self.__mul)
-    self.__emphasize = pyo.Osc(table=self.__wave, freq=self.__freq*2,  mul=self.__amp * self.__mul)
+    mul = self.__amp * self.__mul/100.0
+    self.__output = pyo.Osc(table=self.__wave, freq=self.__freq,  mul=mul)
+    self.__emphasize = pyo.Osc(table=self.__wave, freq=self.__freq*2,  mul=mul)
 
   def StartPlayback(self):
     self.__output.out()
 
   def StopPlayback(self):
+    self.__emphasize.stop()
     self.__output.stop()
 
   def TempoUp(self):
@@ -72,15 +74,19 @@ class Metro():
       self.RefreshMonitors()
 
   def MulUp(self):
-    if self.__mul < 1:
-      self.__mul += 0.1
-      self.__metro.setMul(self.__mul)
+    if self.__mul < 100:
+      self.__mul += 5
+      mul = self.__amp * self.__mul/100.0
+      self.__output *= mul
+      self.__emphasize *= mul
       self.RefreshMonitors()
 
   def MulDown(self):
     if self.__mul > 0:
-      self.__mul -= 0.1
-      self.__metro.setMul(self.__mul)
+      self.__mul -= 5
+      mul = self.__amp * self.__mul/100.0
+      self.__output *= mul
+      self.__emphasize *= mul
       self.RefreshMonitors()
 
   def BeatUp(self):
@@ -116,11 +122,14 @@ class Metro():
     self.__tick += 1 
     if self.__tick > self.__beat:
       self.__tick = 1
-    if self.__tick == 1:
-      if self.__output.isOutputting():
+    if self.__output.isOutputting():        
+     # mul = self.__mul/100.0
+      if self.__tick == 1:   
+      #  self.__output *= mul
         self.__emphasize.out()
-    else:
-      self.__emphasize.stop()
+      else:     
+     #   self.__output *= mul
+        self.__emphasize.stop()
     for monitor in self.__monitors:
       monitor.Tick()
     

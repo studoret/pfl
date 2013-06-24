@@ -71,7 +71,7 @@ class BeatPanel(LedPanel):
 
 class VolumePanel(LedPanel):
   def __init__(self, parent):
-    LedPanel.__init__(self, parent, 4, "blue", 'VOL.')
+    LedPanel.__init__(self, parent, 4, "blue", 'VOL.','%')
 
 class MetroPanel(wx.Panel):
   def __init__(self, parent):
