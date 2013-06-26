@@ -27,25 +27,31 @@ from metro.metro import *
 from metro.panel import *
 from metro.mgr import *
 from pedals.panel import *
+from track.panel import *
 
 s = pyo.Server().boot()
 s.start()
 m = Metro()
 
+class PanelManager():
+  PEDALS_PANEL = 0
+  METRO_PANEL  = 1
+  def __init__(self, frame):
+    self.__tracksPanel = [TrackPanel(frame)]
+    self.__panels = [PedalsPanel(frame), MetroPanel(frame), self.__tracksPanel[0]]
+    for panel in self.__panels:
+      frame.fSizer.Add(panel, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL)
+    self.metroManager = MetroManager(self.__panels[self.__class__.PEDALS_PANEL], m, self.__panels[self.__class__.METRO_PANEL])
+    self.metroManager.Select()
+
 class MyFrame(wx.Frame):
   def __init__(self, parent, title): 
     wx.Frame.__init__(self, parent, -1, title)
-    self.fSizer = wx.BoxSizer(wx.VERTICAL)  
-    self.pedalsPanel = PedalsPanel(self)
-    self.fSizer.Add(self.pedalsPanel, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL)
-      
-    self.metroPanel = MetroPanel(self)
-    self.fSizer.Add(self.metroPanel, 1, wx.EXPAND)
+    self.fSizer = wx.BoxSizer(wx.VERTICAL) 
+    self.mgr = PanelManager(self) 
       
     self.SetSizer(self.fSizer)
     
-    self.manager = MetroManager(self.pedalsPanel, m, self.metroPanel)
-    self.manager.Select()
     self.Centre()
     self.Show()
     self.fSizer.Layout()
