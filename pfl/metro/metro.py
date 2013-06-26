@@ -73,6 +73,19 @@ class Metro():
       self.__metro.setTime(time)
       self.RefreshMonitors()
 
+  def ForceTempo(self, bpm):
+    self.__tempoIdx = 0
+    for t in self.__tempoTab:
+      if bpm < t:
+        bpm =t
+        break
+      self.__tempoIdx += 1
+    if self.__tempoIdx == len(self.__tempoTab):
+      self.__tempoIdx -= 1
+    time = 60. / bpm
+    self.__metro.setTime(time)
+    self.RefreshMonitors()
+    
   def MulUp(self):
     if self.__mul < 100:
       self.__mul += 5

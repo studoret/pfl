@@ -24,6 +24,7 @@ along with pfl.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from metro import *
+import time
 
 
 # Pedal 2, DownAction => nothing
@@ -41,6 +42,12 @@ class Action():
 
   def GetSubtitle(self):
     return self.__subtitle
+
+  def Select(self):
+    pass
+
+  def Reverse(self):
+    pass
 
 class ActionMute(Action):
   titles = {0: "MUTE    ", 1: "UNMUTE  "}
@@ -73,6 +80,27 @@ class ActionCursor(Action):
 
   def GetSubtitle(self):
     return self.__class__.subtitles[self.__increment]
+
+class ActionTap(Action):
+  subtitles = ["(", ")"]
+  def __init__(self, setBpmFunction):
+    self.__state = 0
+    Action.__init__(self, "TAP     ", self.__class__.subtitles[self.__state])
+    self.__begin = None
+    self.__setBpm = setBpmFunction
+
+  def Select(self):
+    if self.__begin == None:
+      self.__state = 1
+      self.__begin = time.time()
+      return
+    self.__state = 0
+    bpm = int(60 / (time.time() - self.__begin))
+    self.__setBpm(bpm)
+    self.__begin = None
+    
+  def GetSubtitle(self):
+    return self.__class__.subtitles[self.__state]
 
 class ActionMenu(Action):
   subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
@@ -120,9 +148,10 @@ class MetroManager():
   def __init__(self, controlPanel, metro, metroPanel):
     self.__metro = metro
     self.__menu =  ActionMenu()
-    self.__menu.Add(ActionCursor("Tempo   ",self.__metro.TempoUp, self.__metro.TempoDown))
+    self.__menu.Add(ActionCursor("TEMPO   ",self.__metro.TempoUp, self.__metro.TempoDown))
     self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
     self.__menu.Add(ActionCursor("VOL     ",self.__metro.MulUp, self.__metro.MulDown))
+    self.__menu.Add(ActionTap(self.__metro.ForceTempo))
     self.__mute = ActionMute(self.__metro.StopPlayback, self.__metro.StartPlayback)
     self.__metro.AddMonitor(self)
     self.__cp = controlPanel
