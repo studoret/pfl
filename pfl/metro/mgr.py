@@ -35,21 +35,6 @@ from utils.action import *
 from metro import *
 import time
 
-class ActionMute(Action):
-  titles = {0: "MUTE    ", 1: "UNMUTE  "}
-  def __init__(self, muteFunction, unmuteFunction):
-    self.__state = 1
-    Action.__init__(self, self.__class__.titles[self.__state])
-    self.actions = {0: unmuteFunction, 1: muteFunction}
-    
-  def Select(self):
-    self.__state += 1
-    self.__state %= 2
-    self.actions[self.__state]()
-
-  def GetTitle(self):
-    return self.__class__.titles[self.__state] 
-
 class ActionTap(Action):
   subtitles = ["(", ")"]
   def __init__(self, setBpmFunction):
@@ -122,7 +107,7 @@ class MetroManager():
     self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
     self.__menu.Add(ActionCursor("VOL     ",self.__metro.MulUp, self.__metro.MulDown))
     self.__menu.Add(ActionTap(self.__metro.ForceTempo))
-    self.__mute = ActionMute(self.__metro.StopPlayback, self.__metro.StartPlayback)
+    self.__mute = ActionSwitch("MUTE    ", "UNMUTE  ", self.__metro.StopPlayback, self.__metro.StartPlayback)
     self.__metro.AddMonitor(self)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
