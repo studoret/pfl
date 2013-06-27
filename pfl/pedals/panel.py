@@ -44,6 +44,7 @@ class Pedal(wx.Panel):
     self.__subtitle.SetFont(wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
     self.__box.Add(self.__subtitle, 0, wx.ALL | wx.ALIGN_BOTTOM, 2)
     self.SetSizer(self.__box)
+    self.__managers = []
 
   def SetTitle(self, title):
      wx.CallAfter(self.__title.SetLabel,title)
@@ -58,23 +59,25 @@ class Pedal(wx.Panel):
     wx.CallAfter(self.SetBackgroundColour,self.__defaultColor)
   
   def AddManager(self, manager):
-    self.manager = manager
+    self.__managers.append(manager)
 
   def OnKeyDown(self):
-    if self.__keyDownCount == 0:
-      self.manager.PedalDown(self.GetId(), self.__keyDownCount)
-      self.Light(wx.GREEN)
-    elif self.__keyDownCount == 2:
-      self.manager.PedalDown(self.GetId(), self.__keyDownCount)
-      self.Light(wx.BLUE)
+    for manager in self.__managers:
+      if self.__keyDownCount == 0:
+        manager.PedalDown(self.GetId(), self.__keyDownCount)
+        self.Light(wx.GREEN)
+      elif self.__keyDownCount == 2:
+        manager.PedalDown(self.GetId(), self.__keyDownCount)
+        self.Light(wx.BLUE)
     self.__keyDownCount += 1
 
   def OnKeyUp(self):
-    action = self.manager.PedalUp(self.GetId(), self.__keyDownCount)
-    if action != None:
-      action.Do()
-    self.__keyDownCount = 0
-    self.Unlight()
+    for manager in self.__managers:
+      action = manager.PedalUp(self.GetId(), self.__keyDownCount)
+      if action != None:
+        action.Do()
+      self.__keyDownCount = 0
+      self.Unlight()
 
 class PedalsPanel(wx.Panel):
   def __init__(self, parent):

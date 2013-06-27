@@ -28,11 +28,17 @@ import wx.gizmos as  gizmos
 class SelectablePanel(wx.Panel):
   def __init__(self, parent, boxLabel):
     wx.Panel.__init__(self, parent)
-    self.boxLabel = boxLabel
-    self.staticBox = wx.StaticBox(self, label=boxLabel)
-    self.box = wx.StaticBoxSizer(self.staticBox, wx.HORIZONTAL)
+    self.__defaultColor = self.GetBackgroundColour()
+    self.__boxLabel = boxLabel
+    self.__staticBox = wx.StaticBox(self, label=boxLabel)
+    self.box = wx.StaticBoxSizer(self.__staticBox, wx.HORIZONTAL)
     self.SetSizer(self.box)
-  
+
+  def Select(self):
+    self.SetBackgroundColour(wx.BLUE)
+
+  def Deselect(self):
+    self.SetBackgroundColour(self.__defaultColor)   
 
 class LedNumber(gizmos.LEDNumberCtrl):
   def __init__(self, parent, digits, color):

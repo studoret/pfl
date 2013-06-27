@@ -29,6 +29,8 @@ from metro.mgr import *
 from pedals.panel import *
 from track.panel import *
 
+from utils.action import *
+
 s = pyo.Server().boot()
 s.start()
 m = Metro()
@@ -38,11 +40,56 @@ class PanelManager():
   METRO_PANEL  = 1
   def __init__(self, frame):
     self.__tracksPanel = [TrackPanel(frame)]
-    self.__panels = [PedalsPanel(frame), MetroPanel(frame), self.__tracksPanel[0]]
+    self.__currentTrackId = self.__class__.METRO_PANEL
+    self.__increment = 1
+    self.__panels = [PedalsPanel(frame), MetroPanel(frame)]
+    controlPanel = self.__panels[self.__class__.PEDALS_PANEL]
+    self.__panels.extend(self.__tracksPanel)
     for panel in self.__panels:
       frame.fSizer.Add(panel, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL)
-    self.metroManager = MetroManager(self.__panels[self.__class__.PEDALS_PANEL], m, self.__panels[self.__class__.METRO_PANEL])
-    self.metroManager.Select()
+    self.__action = ActionCursor("TRACK    ",self.TrackUp, self.TrackDown)
+    controlPanel.SetTitle(0, self.__action.GetTitle())  
+    controlPanel.SetSubtitle(0, self.__action.GetSubtitle())  
+    controlPanel.AddManager(self)
+    self.metroManager = MetroManager(controlPanel, m, self.__panels[self.__class__.METRO_PANEL])
+#    self.tracksManager = TracksManager(controlPanel)
+    self.DoSelection(self.__currentTrackId)
+
+  def DoSelection(self, trackId):
+    self.__panels[trackId].Select()
+    if trackId == self.__class__.METRO_PANEL:
+      self.metroManager.Select()
+    else:
+      self.metroManager.Deselect()
+    
+  def ChangeSelection(self):
+    oldId = self.__currentTrackId
+    self.__currentTrackId += self.__increment
+    if self.__currentTrackId == self.__class__.PEDALS_PANEL:
+      self.__currentTrackId = len(self.__panels) - 1
+    if self.__currentTrackId == len(self.__panels):
+      self.__currentTrackId = self.__class__.PEDALS_PANEL + 1
+    self.__panels[oldId].Deselect()
+    self.DoSelection(self.__currentTrackId)
+
+  def TrackUp(self):
+    self.__increment = 1
+    self.ChangeSelection()
+
+  def TrackDown(self):
+    self.__increment = -1
+    self.ChangeSelection()
+
+  def PedalDown(self, pedalId, keyDownCount):
+    print "pedalDown = " + str(pedalId) + " " + str(keyDownCount)
+    if pedalId == 0 and keyDownCount >= 2:
+      self.__action.Reverse()
+
+  def PedalUp(self, pedalId, keyDownCount):
+    print "pedalUp = " + str(pedalId) + " " + str(keyDownCount)
+    if pedalId == 0 and keyDownCount < 2:
+      self.__action.Select()
+
 
 class MyFrame(wx.Frame):
   def __init__(self, parent, title): 

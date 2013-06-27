@@ -49,21 +49,21 @@ class VolumePanel(LedPanel):
 class MetroPanel(SelectablePanel):
   def __init__(self, parent):
     SelectablePanel.__init__(self, parent, 'Metronome')
-    self.tempoPanel = TempoPanel(self)
-    self.box.Add(self.tempoPanel, 0, wx.ALL | wx.ALIGN_LEFT,5)
-    self.beatPanel = BeatPanel(self)
-    self.box.Add(self.beatPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,5)
-    self.volumePanel = VolumePanel(self)
-    self.box.Add(self.volumePanel, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+    self.__tempoPanel = TempoPanel(self)
+    self.box.Add(self.__tempoPanel, 0, wx.ALL | wx.ALIGN_LEFT,5)
+    self.__beatPanel = BeatPanel(self)
+    self.box.Add(self.__beatPanel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL,5)
+    self.__volumePanel = VolumePanel(self)
+    self.box.Add(self.__volumePanel, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
   def RefreshTempo(self, value):
-    self.tempoPanel.SetValue(value)
+    self.__tempoPanel.SetValue(value)
 
   def RefreshMul(self, value):
-    self.volumePanel.SetValue(value)
+    self.__volumePanel.SetValue(value)
 
   def RefreshTick(self, tick, color=None):
-    self.beatPanel.SetValue(tick, color)
+    self.__beatPanel.SetValue(tick, color)
 
   def RefreshBeat(self, beat):
-    self.beatPanel.SetSubTitle(beat)
+    self.__beatPanel.SetSubTitle(beat)

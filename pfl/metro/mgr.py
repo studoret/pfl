@@ -23,31 +23,17 @@ You should have received a copy of the GNU General Public License
 along with pfl.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sys, os
+parent_dir =  os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, parent_dir)
+import pfl
+__package__ = str("pfl")
+del sys, os
+
+from utils.action import *
+
 from metro import *
 import time
-
-
-# Pedal 2, DownAction => nothing
-#          UpAction + keyDownCount < 2   => do action 
-#          UpAction + keyDownCount >=   => change incremente to decremente mode in vice et versa
-
-
-class Action():
-  def __init__(self, title, subtitle=""):
-    self.__title = title
-    self.__subtitle = subtitle
-
-  def GetTitle(self):
-    return self.__title
-
-  def GetSubtitle(self):
-    return self.__subtitle
-
-  def Select(self):
-    pass
-
-  def Reverse(self):
-    pass
 
 class ActionMute(Action):
   titles = {0: "MUTE    ", 1: "UNMUTE  "}
@@ -63,23 +49,6 @@ class ActionMute(Action):
 
   def GetTitle(self):
     return self.__class__.titles[self.__state] 
-
-class ActionCursor(Action):
-  subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
-  
-  def __init__(self, title, incFunction, decFunction):
-    self.__increment = 1
-    Action.__init__(self, title, self.__class__.subtitles[self.__increment])
-    self.actions = {-1: incFunction, 1: decFunction}
-
-  def Select(self):
-    self.actions[self.__increment]()
-
-  def Reverse(self):
-    self.__increment *= -1
-
-  def GetSubtitle(self):
-    return self.__class__.subtitles[self.__increment]
 
 class ActionTap(Action):
   subtitles = ["(", ")"]
@@ -147,6 +116,7 @@ class ActionMenu(Action):
 class MetroManager():
   def __init__(self, controlPanel, metro, metroPanel):
     self.__metro = metro
+    self.__selected = False
     self.__menu =  ActionMenu()
     self.__menu.Add(ActionCursor("TEMPO   ",self.__metro.TempoUp, self.__metro.TempoDown))
     self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
@@ -160,17 +130,23 @@ class MetroManager():
     self.Refresh()
 
   def Select(self):
+    self.__selected = True
     self.__cp.SetTitle(1, self.__menu.GetTitle())  
     self.__cp.SetSubtitle(1, self.__menu.GetSubtitle())  
     self.__cp.SetTitle(2, self.__menu.GetActionTitle()) 
     self.__cp.SetSubtitle(2, self.__menu.GetActionSubtitle()) 
     self.__cp.SetTitle(3, self.__mute.GetTitle()) 
-    self.__cp.SetSubtitle(3, self.__mute.GetSubtitle())      
+    self.__cp.SetSubtitle(3, self.__mute.GetSubtitle())
+
+  def Deselect(self):
+    self.__selected = False
 
   def GetCurrentAction(self):
     return self.__actions[self.__actionIdx]
 
   def PedalDown(self, pedalId, keyDownCount):
+    if self.__selected == False:
+      return
     if pedalId == 0:
       return # the first pedal is not used by the metronome
     if pedalId == 1:
@@ -190,6 +166,8 @@ class MetroManager():
       self.__cp.SetTitle(pedalId, self.__mute.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
+    if self.__selected == False:
+      return
     if pedalId == 0:
       return # the first pedal is not used by the metronome
     if pedalId == 1:
