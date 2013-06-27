@@ -88,3 +88,45 @@ class ActionSwitch(Action):
 
   def GetTitle(self):
     return self.__titles[self.__state] 
+
+class ActionMenu(Action):
+  subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
+
+  def __init__(self):
+    self.__increment = 1
+    Action.__init__(self, "MENU    ", self.__class__.subtitles[self.__increment])
+    self.__actions = []
+    self.__idx = 0
+  
+  def Add(self, action):
+    self.__actions.append(action)
+  
+  def GetCurrentAction(self):
+    if len(self.__actions) > 0:
+      return self.__actions[self.__idx]
+    else:
+      return None
+
+  def GetActionTitle(self):
+    if len(self.__actions) > 0:
+      return self.__actions[self.__idx].GetTitle()
+
+  def GetActionSubtitle(self):
+    if len(self.__actions) > 0:
+      return self.__actions[self.__idx].GetSubtitle()
+
+  def Select(self):
+    if len(self.__actions) > 0:
+      self.__idx += self.__increment
+      if self.__idx == -1:
+        self.__idx += len(self.__actions) 
+      else:
+        if self.__idx == len(self.__actions):
+          self.__idx = 0
+
+  def Reverse(self):
+    self.__increment *= -1
+
+  def GetSubtitle(self):
+    return self.__class__.subtitles[self.__increment]
+    

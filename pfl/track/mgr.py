@@ -1,6 +1,6 @@
 """
-module pfl.metro.mgr
-Manager of pfl.metro.metro object .
+module pfl.track.mgr
+Manager of pfl.track.track object .
 
 """
 
@@ -31,46 +31,15 @@ __package__ = str("pfl")
 del sys, os
 
 from utils.action import *
+from track import *
 
-from metro import *
-import time
-
-class ActionTap(Action):
-  subtitles = ["(", ")"]
-  def __init__(self, setBpmFunction):
-    self.__state = 0
-    Action.__init__(self, "TAP     ", self.__class__.subtitles[self.__state])
-    self.__begin = None
-    self.__setBpm = setBpmFunction
-
-  def Select(self):
-    if self.__begin == None:
-      self.__state = 1
-      self.__begin = time.time()
-      return
-    self.__state = 0
-    bpm = int(60 / (time.time() - self.__begin))
-    self.__setBpm(bpm)
-    self.__begin = None
-    
-  def GetSubtitle(self):
-    return self.__class__.subtitles[self.__state]
-
-class MetroManager():
-  def __init__(self, controlPanel, metro, metroPanel):
-    self.__metro = metro
+class TracksManager():
+  def __init__(self, controlPanel):
     self.__selected = False
     self.__menu =  ActionMenu()
-    self.__menu.Add(ActionCursor("TEMPO   ",self.__metro.TempoUp, self.__metro.TempoDown))
-    self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
-    self.__menu.Add(ActionCursor("VOL     ",self.__metro.MulUp, self.__metro.MulDown))
-    self.__menu.Add(ActionTap(self.__metro.ForceTempo))
-    self.__mute = ActionSwitch("MUTE    ", "UNMUTE  ", self.__metro.StopPlayback, self.__metro.StartPlayback)
-    self.__metro.AddMonitor(self)
+    self.__playBack = ActionSwitch("STOP    ", "START  ", self.StopPlayback, self.StartPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
-    self.__metroPanel = metroPanel
-    self.Refresh()
 
   def Select(self):
     self.__selected = True
@@ -78,14 +47,17 @@ class MetroManager():
     self.__cp.SetSubtitle(1, self.__menu.GetSubtitle())  
     self.__cp.SetTitle(2, self.__menu.GetActionTitle()) 
     self.__cp.SetSubtitle(2, self.__menu.GetActionSubtitle()) 
-    self.__cp.SetTitle(3, self.__mute.GetTitle()) 
-    self.__cp.SetSubtitle(3, self.__mute.GetSubtitle())
+    self.__cp.SetTitle(3, self.__playBack.GetTitle()) 
+    self.__cp.SetSubtitle(3, self.__playBack.GetSubtitle())
 
   def Deselect(self):
     self.__selected = False
 
-  def GetCurrentAction(self):
-    return self.__actions[self.__actionIdx]
+  def StartPlayback(self):
+    print "StartPlayback"
+
+  def StopPlayback(self):
+    print "StopPlayback"
 
   def PedalDown(self, pedalId, keyDownCount):
     if self.__selected == False:
@@ -105,8 +77,8 @@ class MetroManager():
           self.__cp.SetSubtitle(pedalId, action.GetSubtitle())
       return
     if pedalId == 3:
-      self.__mute.Select()
-      self.__cp.SetTitle(pedalId, self.__mute.GetTitle())
+      self.__playBack.Select()
+      self.__cp.SetTitle(pedalId, self.__playBack.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
     if self.__selected == False:
@@ -126,23 +98,3 @@ class MetroManager():
           action.Select()
           self.__cp.SetSubtitle(pedalId,action.GetSubtitle())
       return
- 
-  def Refresh(self):
-    self.__metroPanel.RefreshTempo(str(self.__metro.GetTempo()))
-    self.__metroPanel.RefreshMul(str(self.__metro.GetMul()))
-    beat = self.__metro.GetBeat()
-    if beat < 10:
-      beatStr = " "+str(beat)
-    else:
-      beatStr = str(beat)
-    self.__metroPanel.RefreshBeat(beatStr)
-
-  def Tick(self):
-    tick = self.__metro.GetTick()
-    if tick == 1:
-      color = "green"
-    else:
-      color = "blue"
-    self.__metroPanel.RefreshTick(str(tick), color)
-      
-                   

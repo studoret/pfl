@@ -28,6 +28,7 @@ from metro.panel import *
 from metro.mgr import *
 from pedals.panel import *
 from track.panel import *
+from track.mgr import *
 
 from utils.action import *
 
@@ -52,15 +53,17 @@ class PanelManager():
     controlPanel.SetSubtitle(0, self.__action.GetSubtitle())  
     controlPanel.AddManager(self)
     self.metroManager = MetroManager(controlPanel, m, self.__panels[self.__class__.METRO_PANEL])
-#    self.tracksManager = TracksManager(controlPanel)
+    self.tracksManager = TracksManager(controlPanel)
     self.DoSelection(self.__currentTrackId)
 
   def DoSelection(self, trackId):
     self.__panels[trackId].Select()
     if trackId == self.__class__.METRO_PANEL:
+      self.tracksManager.Deselect()
       self.metroManager.Select()
     else:
       self.metroManager.Deselect()
+      self.tracksManager.Select()
     
   def ChangeSelection(self):
     oldId = self.__currentTrackId
