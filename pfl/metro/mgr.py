@@ -63,9 +63,9 @@ class MetroManager():
     self.__menu =  ActionMenu()
     self.__menu.Add(ActionCursor("TEMPO   ",self.__metro.TempoUp, self.__metro.TempoDown))
     self.__menu.Add(ActionCursor("BEAT    ",self.__metro.BeatUp, self.__metro.BeatDown))
-    self.__menu.Add(ActionCursor("VOL     ",self.__metro.MulUp, self.__metro.MulDown))
+    self.__menu.Add(ActionCursor("VOL.    ",self.__metro.MulUp, self.__metro.MulDown))
     self.__menu.Add(ActionTap(self.__metro.ForceTempo))
-    self.__mute = ActionSwitch("MUTE    ", "UNMUTE  ", self.__metro.StopPlayback, self.__metro.StartPlayback)
+    self.__mute = ActionSwitch(0, "SOUND ON  ", "SOUND OFF ", self.__metro.StartPlayback, self.__metro.StopPlayback)
     self.__metro.AddMonitor(self)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
@@ -88,10 +88,8 @@ class MetroManager():
     return self.__actions[self.__actionIdx]
 
   def PedalDown(self, pedalId, keyDownCount):
-    if self.__selected == False:
+    if self.__selected == False or pedalId == 0:
       return
-    if pedalId == 0:
-      return # the first pedal is not used by the metronome
     if pedalId == 1:
       if keyDownCount >= 2:
         self.__menu.Reverse()
@@ -109,10 +107,8 @@ class MetroManager():
       self.__cp.SetTitle(pedalId, self.__mute.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
-    if self.__selected == False:
+    if self.__selected == False or pedalId == 0:
       return
-    if pedalId == 0:
-      return # the first pedal is not used by the metronome
     if pedalId == 1:
       if keyDownCount < 2:
         self.__menu.Select()
@@ -124,6 +120,7 @@ class MetroManager():
       if action != None:
         if keyDownCount < 2:
           action.Select()
+          self.__cp.SetTitle(pedalId,action.GetTitle())
           self.__cp.SetSubtitle(pedalId,action.GetSubtitle())
       return
  

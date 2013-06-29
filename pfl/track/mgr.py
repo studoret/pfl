@@ -37,7 +37,9 @@ class TracksManager():
   def __init__(self, controlPanel):
     self.__selected = False
     self.__menu =  ActionMenu()
-    self.__playBack = ActionSwitch("STOP    ", "START  ", self.StopPlayback, self.StartPlayback)
+    self.__menu.Add(ActionSwitch(0, "LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
+    self.__menu.Add(ActionCursor("VOL.     ", self.VolUp, self.VolDown))
+    self.__playBack = ActionSwitch(0, "START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
 
@@ -59,11 +61,21 @@ class TracksManager():
   def StopPlayback(self):
     print "StopPlayback"
 
+  def VolDown(self):
+    print "VolDown"
+
+  def VolUp(self):
+    print "VolUp"
+
+  def LoopOn(self):
+    print "LoopOn"
+
+  def LoopOff(self):
+    print "LoopOff"
+
   def PedalDown(self, pedalId, keyDownCount):
-    if self.__selected == False:
+    if self.__selected == False or pedalId == 0:
       return
-    if pedalId == 0:
-      return # the first pedal is not used by the metronome
     if pedalId == 1:
       if keyDownCount >= 2:
         self.__menu.Reverse()
@@ -81,10 +93,8 @@ class TracksManager():
       self.__cp.SetTitle(pedalId, self.__playBack.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
-    if self.__selected == False:
+    if self.__selected == False or pedalId == 0:
       return
-    if pedalId == 0:
-      return # the first pedal is not used by the metronome
     if pedalId == 1:
       if keyDownCount < 2:
         self.__menu.Select()
@@ -96,5 +106,6 @@ class TracksManager():
       if action != None:
         if keyDownCount < 2:
           action.Select()
+          self.__cp.SetTitle(pedalId,action.GetTitle())
           self.__cp.SetSubtitle(pedalId,action.GetSubtitle())
       return

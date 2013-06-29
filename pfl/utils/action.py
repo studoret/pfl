@@ -75,16 +75,17 @@ class ActionCursor(Action):
 
 
 class ActionSwitch(Action):
-  def __init__(self, onTitle, offTitle, onFunction, offFunction):
+  def __init__(self, state, onTitle, offTitle, onFunction, offFunction):
     self.__titles = {0: onTitle, 1: offTitle}
-    self.__state = 1
+    self.__state = state
     Action.__init__(self, self.__titles[self.__state])
-    self.actions = {0: onFunction, 1: offFunction}
+    self.__actions = {0: offFunction, 1: onFunction}
+    self.__actions[(state + 1)%2]
     
   def Select(self):
     self.__state += 1
     self.__state %= 2
-    self.actions[self.__state]()
+    self.__actions[self.__state]()
 
   def GetTitle(self):
     return self.__titles[self.__state] 
