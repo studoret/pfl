@@ -34,15 +34,17 @@ from utils.action import *
 from track import *
 
 class TracksManager():
-  def __init__(self, controlPanel):
+  def __init__(self, panelMgr, controlPanel):
     self.__selected = False
+    self.__panelMgr = panelMgr # not used at this time
     self.__menu = ActionMenu()
     self.__menu.Add(ActionSwitch(0, "LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
     self.__menu.Add(ActionCursor("VOL.     ", self.VolUp, self.VolDown))
     self.__playBack = ActionSwitch(0, "START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
-    self.__dataTable = None
+    self.__dataTables = {-1:None}
+    self.__currentTrackId = -1
 
   def Select(self):
     self.__selected = True
@@ -56,14 +58,23 @@ class TracksManager():
   def Deselect(self):
     self.__selected = False
 
+  def SetTrackID(self, trackId):
+    self.__currentTrackId = trackId
+
   def SetDataTable(self, dataTable):
-    self.__dataTable = dataTable
+    self.__dataTables[self.__currentTrackID] = dataTable
 
   def StartPlayback(self):
-    print "StartPlayback"
+    #todo set a outStream by dataTable => create track.py for that
+    if self.__outStream != None:
+      print "StartPlayback"  
+      freq = self.__dataTable.getRate()
+      self.__outStream = pyo.TableRead(table=self.__dataTable[self.__currentTrackID], freq=freq, interp=1, loop=True, mul=0.5).play()
 
   def StopPlayback(self):
-    print "StopPlayback"
+    if self.__outStream != None:
+      print "StopPlayback"
+      self.__outStream.stop()
 
   def VolDown(self):
     print "VolDown"

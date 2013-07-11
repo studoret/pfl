@@ -54,7 +54,7 @@ class PanelManager():
     controlPanel.SetSubtitle(0, self.__action.GetSubtitle())  
     controlPanel.AddManager(self)
     self.metroManager = MetroManager(controlPanel, m, self.__panels[self.__class__.METRO_PANEL])
-    self.tracksManager = TracksManager(controlPanel)
+    self.tracksManager = TracksManager(self, controlPanel)
     self.DoSelection(self.__currentTrackId)
     self.__recorder = Recorder(m, self.tracksManager)
 
@@ -66,6 +66,7 @@ class PanelManager():
     else:
       self.metroManager.Deselect()
       self.tracksManager.Select()
+    self.tracksManager.SetTrackID(trackId)
     
   def ChangeSelection(self):
     oldId = self.__currentTrackId
