@@ -124,6 +124,9 @@ class Metro():
   def GetTick(self):
     return self.__tick
 
+  def GetTime(self):
+    return self.__metro.getTime()
+
   def AddMonitor(self, monitor):
     self.__monitors.append(monitor)
 

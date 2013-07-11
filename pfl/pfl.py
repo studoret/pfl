@@ -29,6 +29,7 @@ from metro.mgr import *
 from pedals.panel import *
 from track.panel import *
 from track.mgr import *
+from recorder.recorder import *
 
 from utils.action import *
 
@@ -55,6 +56,7 @@ class PanelManager():
     self.metroManager = MetroManager(controlPanel, m, self.__panels[self.__class__.METRO_PANEL])
     self.tracksManager = TracksManager(controlPanel)
     self.DoSelection(self.__currentTrackId)
+    self.__recorder = Recorder(m, self.tracksManager)
 
   def DoSelection(self, trackId):
     self.__panels[trackId].Select()

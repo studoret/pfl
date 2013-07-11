@@ -36,12 +36,13 @@ from track import *
 class TracksManager():
   def __init__(self, controlPanel):
     self.__selected = False
-    self.__menu =  ActionMenu()
+    self.__menu = ActionMenu()
     self.__menu.Add(ActionSwitch(0, "LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
     self.__menu.Add(ActionCursor("VOL.     ", self.VolUp, self.VolDown))
     self.__playBack = ActionSwitch(0, "START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
+    self.__dataTable = None
 
   def Select(self):
     self.__selected = True
@@ -54,6 +55,9 @@ class TracksManager():
 
   def Deselect(self):
     self.__selected = False
+
+  def SetDataTable(self, dataTable):
+    self.__dataTable = dataTable
 
   def StartPlayback(self):
     print "StartPlayback"
