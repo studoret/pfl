@@ -29,7 +29,6 @@ from metro.mgr import *
 from pedals.panel import *
 from track.panel import *
 from track.mgr import *
-from recorder.recorder import *
 
 from utils.action import *
 
@@ -40,6 +39,7 @@ m = Metro()
 class PanelManager():
   PEDALS_PANEL = 0
   METRO_PANEL  = 1
+  FIRST_SOUNDTRACK_PANEL = 2
   def __init__(self, frame):
     self.__tracksPanel = [TrackPanel(frame)]
     self.__currentTrackId = self.__class__.METRO_PANEL
@@ -54,9 +54,9 @@ class PanelManager():
     controlPanel.SetSubtitle(0, self.__action.GetSubtitle())  
     controlPanel.AddManager(self)
     self.metroManager = MetroManager(controlPanel, m, self.__panels[self.__class__.METRO_PANEL])
-    self.tracksManager = TracksManager(self, controlPanel)
+    self.tracksManager = TracksManager(m, self, controlPanel)
+    self.tracksManager.AddTrack(Track(self.__tracksPanel[0]))
     self.DoSelection(self.__currentTrackId)
-    self.__recorder = Recorder(m, self.tracksManager)
 
   def DoSelection(self, trackId):
     self.__panels[trackId].Select()
@@ -66,7 +66,7 @@ class PanelManager():
     else:
       self.metroManager.Deselect()
       self.tracksManager.Select()
-    self.tracksManager.SetTrackID(trackId)
+    self.tracksManager.SetCurrentTrackID(trackId - self.__class__.FIRST_SOUNDTRACK_PANEL)
     
   def ChangeSelection(self):
     oldId = self.__currentTrackId

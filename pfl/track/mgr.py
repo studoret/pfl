@@ -32,19 +32,47 @@ del sys, os
 
 from utils.action import *
 from track import *
+from recorder.recorder import *
+
+class Track():
+  def __init__(self, panel):
+    self.__panel = panel
+    self.__dataTable = None
+    self.__outStream = None
+ 
+  def HasRecord(self):
+    return self.__dataTable != None
+    
+  def SetDataTable(self, dataTable):
+    self.__dataTables[self.__currentTrackId] = dataTable
+
+  def StartPlayback(self):
+    if self.__dataTable != None:
+      print "StartPlayback"  
+      freq = self.__dataTable.getRate()
+      self.__outStream = pyo.TableRead(table=self.__dataTable, freq=freq, interp=1, loop=True, mul=0.5).play()
+    else :
+      print "No record"
+
+  def StopPlayback(self):
+    if self.__outStream != None:
+      print "StopPlayback"
+      self.__outStream.stop()
 
 class TracksManager():
-  def __init__(self, panelMgr, controlPanel):
+  def __init__(self, metro, panelMgr, controlPanel):
     self.__selected = False
     self.__panelMgr = panelMgr # not used at this time
     self.__menu = ActionMenu()
+    self.__menu.Add(ActionLong("START RECORD  ", self.StartRecord, self.StopRecord))
     self.__menu.Add(ActionSwitch(0, "LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
     self.__menu.Add(ActionCursor("VOL.     ", self.VolUp, self.VolDown))
     self.__playBack = ActionSwitch(0, "START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
-    self.__dataTables = {-1:None}
+    self.__tracks = []
     self.__currentTrackId = -1
+    self.__recorder = Recorder(metro, self)
 
   def Select(self):
     self.__selected = True
@@ -58,23 +86,30 @@ class TracksManager():
   def Deselect(self):
     self.__selected = False
 
-  def SetTrackID(self, trackId):
+  def SetCurrentTrackID(self, trackId):
     self.__currentTrackId = trackId
 
-  def SetDataTable(self, dataTable):
-    self.__dataTables[self.__currentTrackID] = dataTable
+  def AddTrack(self, track):
+    self.__tracks.append(track)    
+
+  def SetDataTable(self, dataTable): 
+    if  self.__currentTrackId >= 0 :
+      self.__tracks[self.__currentTrackId].SetDataTable(dataTable)
+
+  def StartRecord(self):
+    self.__recorder.Start()
+
+  def StopRecord(self):
+    self.__recorder.Stop()
 
   def StartPlayback(self):
-    #todo set a outStream by dataTable => create track.py for that
-    if self.__outStream != None:
-      print "StartPlayback"  
-      freq = self.__dataTable.getRate()
-      self.__outStream = pyo.TableRead(table=self.__dataTable[self.__currentTrackID], freq=freq, interp=1, loop=True, mul=0.5).play()
+    print "__currentTrack = "+str(self.__currentTrackId)
+    if  self.__currentTrackId >= 0 :
+      self.__tracks[self.__currentTrackId].StartPlayback()
 
   def StopPlayback(self):
-    if self.__outStream != None:
-      print "StopPlayback"
-      self.__outStream.stop()
+    if  self.__currentTrackId >= 0 :
+      self.__tracks[self.__currentTrackId].StopPlayback()
 
   def VolDown(self):
     print "VolDown"

@@ -39,6 +39,12 @@ class Action():
   def Reverse(self):
     pass
 
+class ActionLong(Action):
+  def __init__(self, title, startFunction, stopFunction):
+    Action.__init__(self, title)
+    self.__state = 0
+    self.__actions = {0: startFunction, 1: stopFunction}
+
 class ActionCursor(Action):
   subtitles = {-1:u'\u21E7', 1:u'\u21E9'}
   
