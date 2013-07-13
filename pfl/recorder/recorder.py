@@ -47,12 +47,14 @@ class Recorder():
     self.__bufferLength = 300 # seconds
     self.__buffer = pyo.NewTable(self.__bufferLength)
     self.__tableRec = pyo.TableRec(self.__input, table=self.__buffer)
+    self.__samples = []
     metro.AddMonitor(self)
 
   def Tick(self):
     if self.__state == RecorderStates.running:
       if self.__elapsed < self.__bufferLength:
-        self.__elapsed += self.__metro.getTime()
+        self.__elapsed += self.__metro.GetTime()
+        print "record time = "+str(self.__elapsed)
       else:
         print "Stop on buffer fool"
         self.__input.stop()
@@ -60,6 +62,7 @@ class Recorder():
     if self.__state == RecorderStates.starting:
       self.__state = RecorderStates.running
       self.__elapsed = 0
+      del self.__samples[:]
       self.__input.play()
       self.__tableRec.play()
       return  
@@ -70,8 +73,7 @@ class Recorder():
       sl = slice (0, samplesLen)
       tmpBuffer = self.__buffer.getTable()[sl]
       self.__samples.extend(tmpBuffer)
-      #todo: pass the dataTable to the current track via the track manager
-      self.__tracksMgr.SetDataTable(pyo.DataTable(samplesLen, init=self.samples))
+      self.__tracksMgr.SetDataTable(pyo.DataTable(samplesLen, init=self.__samples))
       return
   
   def Refresh(self):

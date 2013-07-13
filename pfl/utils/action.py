@@ -33,6 +33,12 @@ class Action():
   def GetSubtitle(self):
     return self.__subtitle
 
+  def Begin(self):
+    pass
+
+  def End(self):
+    pass
+
   def Select(self):
     pass
 
@@ -42,8 +48,13 @@ class Action():
 class ActionLong(Action):
   def __init__(self, title, startFunction, stopFunction):
     Action.__init__(self, title)
-    self.__state = 0
-    self.__actions = {0: startFunction, 1: stopFunction}
+    self.__actions = [startFunction, stopFunction]
+
+  def Down(self):
+    self.__actions[0]()
+
+  def Up(self):
+    self.__actions[1]()
 
 class ActionCursor(Action):
   subtitles = {-1:u'\u21E7', 1:u'\u21E9'}

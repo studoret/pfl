@@ -33,6 +33,7 @@ del sys, os
 from utils.action import *
 from track import *
 from recorder.recorder import *
+from datetime import *
 
 class Track():
   def __init__(self, panel):
@@ -43,8 +44,13 @@ class Track():
   def HasRecord(self):
     return self.__dataTable != None
     
+  def Save(self, fileName):
+    self.__dataTable.save(path=fileName, format=0, sampletype = 1)
+
   def SetDataTable(self, dataTable):
-    self.__dataTables[self.__currentTrackId] = dataTable
+    print "SetDataTable"
+    self.__dataTable = dataTable
+    self.Save("test_"+ datetime.now().strftime("%Y%m%d-%H%M%S") + ".wav")
 
   def StartPlayback(self):
     if self.__dataTable != None:
@@ -134,6 +140,7 @@ class TracksManager():
     if pedalId == 2:
       action = self.__menu.GetCurrentAction()
       if action != None:
+        action.Down()
         if keyDownCount >= 2:
           action.Reverse()
           self.__cp.SetSubtitle(pedalId, action.GetSubtitle())
@@ -154,6 +161,7 @@ class TracksManager():
     if pedalId == 2:
       action = self.__menu.GetCurrentAction()
       if action != None:
+        action.Up()
         if keyDownCount < 2:
           action.Select()
           self.__cp.SetTitle(pedalId,action.GetTitle())

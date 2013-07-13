@@ -43,8 +43,8 @@ class Metro():
     self.__mul = 50 # percent
     self.__freq = 700
     self.__dur = 0.01
-    time = 60. / self.__tempoTab[self.__tempoIdx]
-    self.__metro = pyo.Metro(time).play()
+    self.__time = 60. / self.__tempoTab[self.__tempoIdx]
+    self.__metro = pyo.Metro(self.__time).play()
     self.__wave = pyo.SquareTable(size=10)
     self.__amp = pyo.TrigEnv(self.__metro, table=self.__wave, dur=self.__dur)
     self.__trig = pyo.TrigFunc(self.__metro, function=self.Tick)
@@ -62,15 +62,15 @@ class Metro():
   def TempoUp(self):
     if self.__tempoIdx < (len(self.__tempoTab) - 1):
       self.__tempoIdx += 1
-      time = 60. / self.__tempoTab[self.__tempoIdx]
-      self.__metro.setTime(time)
+      self.__time = 60. / self.__tempoTab[self.__tempoIdx]
+      self.__metro.setTime(self.__time)
       self.RefreshMonitors()
 
   def TempoDown(self):
     if self.__tempoIdx > 0:
       self.__tempoIdx -= 1
-      time = 60. / self.__tempoTab[self.__tempoIdx]
-      self.__metro.setTime(time)
+      self.__time = 60. / self.__tempoTab[self.__tempoIdx]
+      self.__metro.setTime(self.__time)
       self.RefreshMonitors()
 
   def ForceTempo(self, bpm):
@@ -82,8 +82,8 @@ class Metro():
       self.__tempoIdx += 1
     if self.__tempoIdx == len(self.__tempoTab):
       self.__tempoIdx -= 1
-    time = 60. / bpm
-    self.__metro.setTime(time)
+    self.__time = 60. / bpm
+    self.__metro.setTime(self.__time)
     self.RefreshMonitors()
     
   def MulUp(self):
@@ -125,7 +125,7 @@ class Metro():
     return self.__tick
 
   def GetTime(self):
-    return self.__metro.getTime()
+    return self.__time
 
   def AddMonitor(self, monitor):
     self.__monitors.append(monitor)
