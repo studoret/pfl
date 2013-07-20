@@ -90,7 +90,7 @@ class Metro():
             if bpm < tempo:
                 bpm = tempo
                 break
-        self.__tempo_idx += 1
+            self.__tempo_idx += 1
         if self.__tempo_idx == len(self.__tempo_tab):
             self.__tempo_idx -= 1
         self.__time = 60. / bpm
