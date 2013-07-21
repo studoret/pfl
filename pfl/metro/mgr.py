@@ -50,7 +50,7 @@ class MetroManager():
                                      self.__metro.MulUp,
                                      self.__metro.MulDown))
         self.__menu.Add(ActionTap(self.__metro.ForceTempo))
-        self.__mute = ActionSwitch(0, "SOUND ON  ", "SOUND OFF ", 
+        self.__mute = ActionSwitch("SOUND ON  ", "SOUND OFF ", 
                                    self.__metro.StartPlayback,
                                    self.__metro.StopPlayback)
         self.__metro.AddMonitor(self)
@@ -78,7 +78,7 @@ class MetroManager():
     def PedalDown(self, pedal_id, key_down_count):
         """ PedalDown call back 
         """ 
-        if self.__selected == False or pedal_id == 0:
+        if (not self.__selected) or (pedal_id == 0):
             return
         if pedal_id == 1:
             if key_down_count >= 2:
@@ -99,7 +99,7 @@ class MetroManager():
     def PedalUp(self, pedal_id, key_down_count):
         """ PedalUp call back 
         """ 
-        if self.__selected == False or pedal_id == 0:
+        if (not self.__selected) or (pedal_id == 0):
             return
         if pedal_id == 1:
             if key_down_count < 2:

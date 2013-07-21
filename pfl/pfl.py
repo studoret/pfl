@@ -67,7 +67,7 @@ class PanelsManager():
         """Deselect the previous selected panel
         and select the new one
         """
-        self.__panels[track_id].Select()
+        self.__panels[track_id].OnSelect()
         if track_id == self.__class__.METRO_PANEL:
             self.tracks_manager.Deselect()
             self.metro_manager.Select()
@@ -86,7 +86,7 @@ class PanelsManager():
             self.__current_track_id = len(self.__panels) - 1
         if self.__current_track_id == len(self.__panels):
             self.__current_track_id = self.__class__.PEDALS_PANEL + 1
-        self.__panels[old_id].Deselect()
+        self.__panels[old_id].OnDeselect()
         self.DoSelection(self.__current_track_id)
 
     def TrackUp(self):

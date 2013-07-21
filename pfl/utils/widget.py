@@ -1,9 +1,7 @@
 """
 module pfl.utils.widgets
 
-"""
-
-"""
+############
 Copyright 2013 Stephane Tudoret
 
 This file is part of pfl, a python foot looper application.
@@ -26,51 +24,70 @@ import wx
 import wx.gizmos as  gizmos
 
 class SelectablePanel(wx.Panel):
-  def __init__(self, parent, boxLabel):
-    wx.Panel.__init__(self, parent)
-    self.__defaultColor = self.GetBackgroundColour()
-    self.__boxLabel = boxLabel
-    self.__staticBox = wx.StaticBox(self, label=boxLabel)
-    self.box = wx.StaticBoxSizer(self.__staticBox, wx.HORIZONTAL)
-    self.SetSizer(self.box)
+    """ Graphical Panel as Track or Metronome ones
+    """
+    def __init__(self, parent, box_label):
+        wx.Panel.__init__(self, parent)
+        self.__default_color = self.GetBackgroundColour()
+        self.__box_label = box_label
+        self.__static_box = wx.StaticBox(self, label=box_label)
+        self.box = wx.StaticBoxSizer(self.__static_box, wx.HORIZONTAL)
+        self.SetSizer(self.box)
 
-  def Select(self):
-    self.SetBackgroundColour(wx.BLUE)
+    def OnSelect(self):
+        """ Select callback
+        """
+        self.SetBackgroundColour(wx.BLUE)
 
-  def Deselect(self):
-    self.SetBackgroundColour(self.__defaultColor)   
+    def OnDeselect(self):
+        """ Deselect callback
+        """
+        self.SetBackgroundColour(self.__default_color)   
 
 class LedNumber(gizmos.LEDNumberCtrl):
-  def __init__(self, parent, digits, color):
-    gizmos.LEDNumberCtrl.__init__(self,parent, -1, size=(digits*27, 50), style = wx.BORDER_NONE)
-    self.SetBackgroundColour("black")
-    self.SetForegroundColour(color)
-    self.SetDrawFaded(True)
-    self.SetAlignment(gizmos.LED_ALIGN_CENTER)
-    self.SetValue("0")
+    """ Display a numbers in 7 segment style
+    """
+    def __init__(self, parent, digits, color):
+        gizmos.LEDNumberCtrl.__init__(self, parent, -1, 
+                                      size=(digits*27, 50), 
+                                      style = wx.BORDER_NONE)
+        self.SetBackgroundColour("black")
+        self.SetForegroundColour(color)
+        self.SetDrawFaded(True)
+        self.SetAlignment(gizmos.LED_ALIGN_CENTER)
+        self.SetValue("0")
 
 class LedPanel(wx.Panel):
-  def __init__(self, parent, digits, color, title, subTitle=None):
-    wx.Panel.__init__(self, parent, style = wx.BORDER_SUNKEN)
-    self.SetBackgroundColour("black")
-    self.SetForegroundColour(color)
-    self.box = wx.BoxSizer(wx.HORIZONTAL)
-    self.text = wx.StaticText(self, label=title)
-    self.text.SetFont(wx.Font(16, wx.DECORATIVE, wx.ITALIC, wx.NORMAL))
-    self.led = LedNumber(self, digits, color)
-    self.box.Add(self.text, 0, wx.ALL | wx.ALIGN_TOP, 2)
-    self.box.Add(self.led, 0, wx.ALL | wx.ALIGN_TOP | wx.FIXED_MINSIZE, 2)
-    if subTitle != None:
-      self.subTitle = wx.StaticText(self, label=subTitle)
-      self.subTitle.SetFont(wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.NORMAL))
-      self.box.Add(self.subTitle, 0, wx.ALL | wx.ALIGN_BOTTOM | wx.FIXED_MINSIZE, 2)
-    self.SetSizer(self.box)
+    """ 7 segment panel
+    """
+    def __init__(self, parent, digits, color, title, sub_title=None):
+        wx.Panel.__init__(self, parent, style = wx.BORDER_SUNKEN)
+        self.SetBackgroundColour("black")
+        self.SetForegroundColour(color)
+        self.box = wx.BoxSizer(wx.HORIZONTAL)
+        self.text = wx.StaticText(self, label=title)
+        self.text.SetFont(wx.Font(16, wx.DECORATIVE, wx.ITALIC, wx.NORMAL))
+        self.led = LedNumber(self, digits, color)
+        self.box.Add(self.text, 0, wx.ALL | wx.ALIGN_TOP, 2)
+        self.box.Add(self.led, 0, wx.ALL | wx.ALIGN_TOP | wx.FIXED_MINSIZE, 2)
+        if sub_title != None:
+            self.sub_title = wx.StaticText(self, label=sub_title)
+            self.sub_title.SetFont(wx.Font(14, wx.DECORATIVE, 
+                                           wx.NORMAL, 
+                                           wx.NORMAL))
+            self.box.Add(self.sub_title, 0, 
+                         wx.ALL | wx.ALIGN_BOTTOM | wx.FIXED_MINSIZE, 2)
+        self.SetSizer(self.box)
 
-  def SetSubTitle(self, subTitle):
-     wx.CallAfter(self.subTitle.SetLabel,subTitle)
+    def SetSubTitle(self, sub_title):
+        """ Set a subtitle (e.g the unity as bpm, %, ...)
+        """
+        wx.CallAfter(self.sub_title.SetLabel, sub_title)
 
-  def SetValue(self, value, color=None):
-    if value != None:
-     wx.CallAfter(self.led.SetValue,value)
-    if color != None:
-      wx.CallAfter(self.led.SetForegroundColour,color)
+    def SetValue(self, value, color=None):
+        """ Set the value to display in the panel
+        """
+        if value != None:
+            wx.CallAfter(self.led.SetValue, value)
+        if color != None:
+            wx.CallAfter(self.led.SetForegroundColour, color)

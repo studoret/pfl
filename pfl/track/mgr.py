@@ -71,13 +71,13 @@ class TracksManager():
     self.__panelMgr = panelMgr # not used at this time
     self.__menu = ActionMenu()
     self.__menu.Add(ActionLong("START RECORD  ", self.StartRecord, self.StopRecord))
-    self.__menu.Add(ActionSwitch(0, "LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
+    self.__menu.Add(ActionSwitch("LOOP ON  ", "LOOP OFF ", self.LoopOn, self.LoopOff))
     self.__menu.Add(ActionCursor("VOL.     ", self.VolUp, self.VolDown))
-    self.__playBack = ActionSwitch(0, "START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
+    self.__playBack = ActionSwitch("START    ", "STOP  ", self.StartPlayback, self.StopPlayback)
     self.__cp = controlPanel
     self.__cp.AddManager(self)
     self.__tracks = []
-    self.__currentTrackId = -1
+    self.__current_track_id = -1
     self.__recorder = Recorder(metro, self)
 
   def Select(self):
@@ -92,15 +92,15 @@ class TracksManager():
   def Deselect(self):
     self.__selected = False
 
-  def SetCurrentTrackID(self, trackId):
-    self.__currentTrackId = trackId
+  def SetCurrentTrackID(self, track_id):
+    self.__current_track_id = track_id
 
   def AddTrack(self, track):
     self.__tracks.append(track)    
 
-  def SetDataTable(self, dataTable): 
-    if  self.__currentTrackId >= 0 :
-      self.__tracks[self.__currentTrackId].SetDataTable(dataTable)
+  def SetDataTable(self, data_table): 
+    if  self.__current_track_id >= 0 :
+      self.__tracks[self.__current_track_id].SetDataTable(data_table)
 
   def StartRecord(self):
     self.__recorder.Start()
@@ -109,13 +109,13 @@ class TracksManager():
     self.__recorder.Stop()
 
   def StartPlayback(self):
-    print "__currentTrack = "+str(self.__currentTrackId)
-    if  self.__currentTrackId >= 0 :
-      self.__tracks[self.__currentTrackId].StartPlayback()
+    print "__currentTrack = "+str(self.__current_track_id)
+    if  self.__current_track_id >= 0 :
+      self.__tracks[self.__current_track_id].StartPlayback()
 
   def StopPlayback(self):
-    if  self.__currentTrackId >= 0 :
-      self.__tracks[self.__currentTrackId].StopPlayback()
+    if  self.__current_track_id >= 0 :
+      self.__tracks[self.__current_track_id].StopPlayback()
 
   def VolDown(self):
     print "VolDown"
@@ -130,7 +130,7 @@ class TracksManager():
     print "LoopOff"
 
   def PedalDown(self, pedalId, keyDownCount):
-    if self.__selected == False or pedalId == 0:
+    if (not self.__selected) or (pedalId == 0):
       return
     if pedalId == 1:
       if keyDownCount >= 2:
@@ -150,7 +150,7 @@ class TracksManager():
       self.__cp.SetTitle(pedalId, self.__playBack.GetTitle())
 
   def PedalUp(self, pedalId, keyDownCount):
-    if self.__selected == False or pedalId == 0:
+    if (not self.__selected) or (pedalId == 0):
       return
     if pedalId == 1:
       if keyDownCount < 2:
