@@ -48,10 +48,10 @@ class Metro():
         self.__metro = pyo.Metro(self.__time).play()
         wave = pyo.SquareTable(size=10)
         self.__amp = pyo.TrigEnv(self.__metro, table=wave, dur=self.__dur)
-        self.__trig = pyo.TrigFunc(self.__metro, function=self.Tick)
         mul = self.__amp * self.__mul/100.0
         self.__output = pyo.Osc(table=wave, freq=self.__freq,  mul=mul)
         self.__emphasize = pyo.Osc(table=wave, freq=self.__freq*2,  mul=mul)
+        self.__trig = pyo.TrigFunc(self.__metro, function=self.Tick)
 
     def StartPlayback(self):
         """ Used to turn on metronome tick sounds
@@ -174,13 +174,10 @@ class Metro():
         self.__tick += 1 
         if self.__tick > self.__beat:
             self.__tick = 1
-        if self.__output.isOutputting():        
-            # mul = self.__mul/100.0
-            if self.__tick == 1:   
-                # self.__output *= mul
+        if self.__output.isOutputting(): 
+            if self.__tick == 1:
                 self.__emphasize.out()
             else:     
-                # self.__output *= mul
                 self.__emphasize.stop()
         for monitor in self.__monitors:
             monitor.Tick()
