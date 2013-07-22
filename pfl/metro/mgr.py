@@ -21,14 +21,6 @@ You should have received a copy of the GNU General Public License
 along with pfl.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(
-    os.path.dirname(
-      os.path.abspath(__file__)))))
-
-__package__ = str("pfl")
-del sys, os
-
 from utils.action import ActionSwitch, ActionTap
 from utils.action import ActionMenu, ActionCursor
 
@@ -55,7 +47,7 @@ class MetroManager():
                                    self.__metro.StopPlayback)
         self.__metro.AddMonitor(self)
         self.__cp = control_panel
-        self.__cp.AddManager(self)
+        self.__cp.AddListener(self)
         self.__metro_panel = metro_panel
         self.Refresh()
 

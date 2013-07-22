@@ -57,7 +57,7 @@ class PanelsManager():
         self.__action = ActionCursor("TRACK    ", self.TrackUp, self.TrackDown)
         control_panel.SetTitle(0, self.__action.GetTitle())  
         control_panel.SetSubtitle(0, self.__action.GetSubtitle())  
-        control_panel.AddManager(self)
+        control_panel.AddListener(self)
         self.metro_manager = MetroManager(control_panel, METRO, metro_panel)
         self.tracks_manager = TracksManager(METRO, self, control_panel)
         self.tracks_manager.AddTrack(Track(self.__tracks_panel[0]))
