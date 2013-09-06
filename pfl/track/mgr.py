@@ -52,7 +52,7 @@ class Track():
         """
         print "SetDataTable"
         self.__data_table = data_table
-        self.Save("test_"+ datetime.now().strftime("%Y%m%d-%H%M%S") + ".wav")
+        #self.Save("test_"+ datetime.now().strftime("%Y%m%d-%H%M%S") + ".wav")
 
     def StartPlayback(self):
         """ Start play back the data table
@@ -63,15 +63,15 @@ class Track():
             self.__out_stream = pyo.TableRead(table=self.__data_table, 
                                              freq=freq, interp=1, 
                                              loop=True, mul=0.5).play()
+            self.__out_stream.out()
         else :
             print "No record"
 
     def StopPlayback(self):
         """ Stop play back the data table
         """
-        if self.__out_stream != None:
-            print "StopPlayback"
-            self.__out_stream.stop()
+        self.__out_stream.stop()
+        self.__out_stream = None
 
 class TracksManager():
     """ Class that monitores sound tracks and the control panel
@@ -147,6 +147,7 @@ class TracksManager():
     def StopPlayback(self):
         """ Stop play back the data table of the current track
         """
+        print "__currentTrack = "+str(self.__current_track_id)
         if  self.__current_track_id >= 0 :
             self.__tracks[self.__current_track_id].StopPlayback()
 
